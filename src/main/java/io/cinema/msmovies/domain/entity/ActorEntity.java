@@ -23,6 +23,6 @@ public class ActorEntity extends AuditableEntity {
     private UUID id;
 
     private String name;
-    private LocalDate birthDate;
+    private LocalDate birthday;
     private String profilePictureUrl;
 }
