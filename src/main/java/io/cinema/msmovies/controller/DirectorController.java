@@ -36,7 +36,10 @@ import java.util.UUID;
 public class DirectorController {
     private final DirectorService directorService;
 
-    @Cacheable(value = "directors", key = "{#page, #size}")
+    private static final String CACHE_DIRECTORS_LIST = "directors";
+    private static final String CACHE_DIRECTOR_SINGLE = "director";
+
+    @Cacheable(value = CACHE_DIRECTORS_LIST, key = "{#page, #size}")
     @GetMapping
     public Flux<DirectorResponseDto> getAllDirectors(
             @RequestParam("page") @PositiveOrZero int page,
@@ -45,7 +48,7 @@ public class DirectorController {
         return directorService.getAllDirectors(page, size);
     }
 
-    @Cacheable(value = "director", key = "#directorId")
+    @Cacheable(value = CACHE_DIRECTOR_SINGLE, key = "#directorId")
     @GetMapping("/{directorId}")
     public Mono<DirectorResponseDto> getDirectorById(
             @PathVariable("directorId") @NotNull UUID directorId
@@ -53,7 +56,7 @@ public class DirectorController {
         return directorService.getDirectorById(directorId);
     }
 
-    @CacheEvict(value = "directors", allEntries = true)
+    @CacheEvict(value = CACHE_DIRECTORS_LIST, allEntries = true)
     @HasEmployeeRole
     @PostMapping
     public Mono<DirectorResponseDto> createDirector(@RequestBody @Valid DirectorRequestDto directorRequestDto) {
@@ -61,8 +64,8 @@ public class DirectorController {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "director", key = "#directorId"),
-            @CacheEvict(value = "directors", allEntries = true)
+            @CacheEvict(value = CACHE_DIRECTOR_SINGLE, key = "#directorId"),
+            @CacheEvict(value = CACHE_DIRECTORS_LIST, allEntries = true)
     })
     @HasEmployeeRole
     @PutMapping("/{directorId}")
@@ -74,8 +77,8 @@ public class DirectorController {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "director", key = "#directorId"),
-            @CacheEvict(value = "directors", allEntries = true)
+            @CacheEvict(value = CACHE_DIRECTOR_SINGLE, key = "#directorId"),
+            @CacheEvict(value = CACHE_DIRECTORS_LIST, allEntries = true)
     })
     @HasEmployeeRole
     @DeleteMapping("/{directorId}")
