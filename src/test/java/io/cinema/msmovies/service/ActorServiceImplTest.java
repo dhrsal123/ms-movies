@@ -326,4 +326,71 @@ class ActorServiceImplTest {
         verify(transactionalOperator).transactional(any(Mono.class));
         verify(actorRepository, times(0)).deleteById(any(UUID.class));
     }
+
+    @Test
+    void shouldFailToGetActorByIdWhenIdDoesNotExist() {
+        // arrange
+        var actorId = UUID.randomUUID();
+
+        when(actorRepository.findById(actorId)).thenReturn(Mono.empty());
+
+        // act
+        var response = actorService.getActorById(actorId);
+
+        // assert
+        StepVerifier.create(response)
+                .expectErrorMatches(e ->
+                        e instanceof CinemaException &&
+                                e.getMessage().equals("Actor not found.")
+                )
+                .verify();
+
+        verify(actorRepository).findById(actorId);
+        verify(transactionalOperator).transactional(any(Mono.class));
+    }
+
+    @Test
+    void shouldFailToUpdateActorWhenIdDoesNotExist() {
+        // arrange
+        var actorRequest = ActorMockFactory.buildActorRequestDto();
+        var actorId = UUID.randomUUID();
+
+        when(actorRepository.findById(actorId)).thenReturn(Mono.empty());
+
+        // act
+        var response = actorService.updateActor(actorId, actorRequest);
+
+        // assert
+        StepVerifier.create(response)
+                .expectErrorMatches(e ->
+                        e instanceof CinemaException &&
+                                e.getMessage().equals("Actor not found.")
+                )
+                .verify();
+
+        verify(actorRepository).findById(actorId);
+        verify(actorRepository, times(0)).save(any(ActorEntity.class));
+    }
+
+    @Test
+    void shouldFailToDeleteActorWhenIdDoesNotExist() {
+        // arrange
+        var actorId = UUID.randomUUID();
+
+        when(actorRepository.findById(actorId)).thenReturn(Mono.empty());
+
+        // act
+        var response = actorService.deleteActor(actorId);
+
+        // assert
+        StepVerifier.create(response)
+                .expectErrorMatches(e ->
+                        e instanceof CinemaException &&
+                                e.getMessage().equals("Actor not found.")
+                )
+                .verify();
+
+        verify(actorRepository).findById(actorId);
+        verify(actorRepository, times(0)).deleteById(any(UUID.class));
+    }
 }

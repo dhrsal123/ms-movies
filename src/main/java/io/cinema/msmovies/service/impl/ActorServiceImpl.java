@@ -1,5 +1,6 @@
 package io.cinema.msmovies.service.impl;
 
+import io.cinema.domain.enumerated.CinemaExceptionTypes;
 import io.cinema.domain.exceptions.CinemaException;
 import io.cinema.msmovies.domain.dto.request.ActorRequestDto;
 import io.cinema.msmovies.domain.dto.response.ActorResponseDto;
@@ -17,12 +18,14 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 import static io.cinema.domain.enumerated.CinemaExceptionTypes.BAD_REQUEST;
+import static io.cinema.domain.enumerated.CinemaExceptionTypes.NOT_FOUND;
 import static io.cinema.domain.enumerated.CinemaExceptionTypes.TECHNICAL_ERROR;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ActorServiceImpl implements ActorService {
+    private static final String ACTOR_NOT_FOUND = "Actor not found.";
     private final ActorRepository actorRepository;
     private final ActorMapper actorMapper;
     private final TransactionalOperator transactionalOperator;
@@ -42,6 +45,7 @@ public class ActorServiceImpl implements ActorService {
     @Override
     public Mono<ActorResponseDto> getActorById(UUID actorId) {
         return actorRepository.findById(actorId)
+                .switchIfEmpty(Mono.error(new CinemaException(ACTOR_NOT_FOUND, NOT_FOUND)))
                 .map(actorMapper::toDto)
                 .as(transactionalOperator::transactional)
                 .doOnError(e -> log.error("Failed to find actor by id, error: {} ", e.getMessage()))
@@ -68,7 +72,7 @@ public class ActorServiceImpl implements ActorService {
     public Mono<ActorResponseDto> updateActor(UUID actorId, ActorRequestDto actorRequestDto) {
         return actorRepository
                 .findById(actorId)
-                .switchIfEmpty(Mono.error(new CinemaException("Actor not found.", BAD_REQUEST)))
+                .switchIfEmpty(Mono.error(new CinemaException(ACTOR_NOT_FOUND, NOT_FOUND)))
                 .flatMap(actor -> {
                     actorMapper.updateEntityFromDto(actorRequestDto, actor);
                     return actorRepository.save(actor);
@@ -86,7 +90,7 @@ public class ActorServiceImpl implements ActorService {
     public Mono<Void> deleteActor(UUID actorId) {
         return  actorRepository
                 .findById(actorId)
-                .switchIfEmpty(Mono.error(new CinemaException("Actor not found.", BAD_REQUEST)))
+                .switchIfEmpty(Mono.error(new CinemaException(ACTOR_NOT_FOUND, NOT_FOUND)))
                 .flatMap(actor -> actorRepository.deleteById(actorId))
                 .as(transactionalOperator::transactional)
                 .doOnError(e -> log.error("Failed to delete actor, error: {} ", e.getMessage()))
