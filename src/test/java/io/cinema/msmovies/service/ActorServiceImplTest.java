@@ -23,6 +23,7 @@ import reactor.test.StepVerifier;
 
 import java.util.UUID;
 
+import static io.cinema.domain.enumerated.CinemaExceptionTypes.NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -341,7 +342,8 @@ class ActorServiceImplTest {
         StepVerifier.create(response)
                 .expectErrorMatches(e ->
                         e instanceof CinemaException &&
-                                e.getMessage().equals("Actor not found.")
+                                e.getMessage().equals("Actor not found.") &&
+                                ((CinemaException) e).getExceptionType() == NOT_FOUND
                 )
                 .verify();
 
@@ -364,7 +366,8 @@ class ActorServiceImplTest {
         StepVerifier.create(response)
                 .expectErrorMatches(e ->
                         e instanceof CinemaException &&
-                                e.getMessage().equals("Actor not found.")
+                                e.getMessage().equals("Actor not found.") &&
+                                ((CinemaException) e).getExceptionType() == NOT_FOUND
                 )
                 .verify();
 
@@ -386,7 +389,8 @@ class ActorServiceImplTest {
         StepVerifier.create(response)
                 .expectErrorMatches(e ->
                         e instanceof CinemaException &&
-                                e.getMessage().equals("Actor not found.")
+                                e.getMessage().equals("Actor not found.") &&
+                                ((CinemaException) e).getExceptionType() == NOT_FOUND
                 )
                 .verify();
 
