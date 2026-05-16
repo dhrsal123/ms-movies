@@ -34,9 +34,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/actors")
 public class ActorController {
+    public static final String CACHE_ACTOR_SINGLE = "actor";
     private final ActorService actorService;
 
-    @Cacheable(value = "actors", key = "{#page, #size}")
+    private static final String CACHE_ACTORS_LIST = "actors";
+
+    @Cacheable(value = CACHE_ACTORS_LIST, key = "{#page, #size}")
     @GetMapping
     public Flux<ActorResponseDto> getAllActors(
             @RequestParam("page") @PositiveOrZero int page,
@@ -45,7 +48,7 @@ public class ActorController {
         return actorService.getAllActors(page, size);
     }
 
-    @Cacheable(value = "actor", key = "#actorId")
+    @Cacheable(value = CACHE_ACTOR_SINGLE, key = "#actorId")
     @GetMapping("/{actorId}")
     public Mono<ActorResponseDto> getActorById(
             @PathVariable("actorId") @NotNull UUID actorId
@@ -53,7 +56,7 @@ public class ActorController {
         return actorService.getActorById(actorId);
     }
 
-    @CacheEvict(value = "actors", allEntries = true)
+    @CacheEvict(value = CACHE_ACTORS_LIST, allEntries = true)
     @HasEmployeeRole
     @PostMapping
     public Mono<ActorResponseDto> createActor(@RequestBody @Valid ActorRequestDto actorRequestDto) {
@@ -61,8 +64,8 @@ public class ActorController {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "actor", key = "#actorId"),
-            @CacheEvict(value = "actors", allEntries = true)
+            @CacheEvict(value = CACHE_ACTOR_SINGLE, key = "#actorId"),
+            @CacheEvict(value = CACHE_ACTORS_LIST, allEntries = true)
     })
     @HasEmployeeRole
     @PutMapping("/{actorId}")
@@ -74,8 +77,8 @@ public class ActorController {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "actor", key = "#actorId"),
-            @CacheEvict(value = "actors", allEntries = true)
+            @CacheEvict(value = CACHE_ACTOR_SINGLE, key = "#actorId"),
+            @CacheEvict(value = CACHE_ACTORS_LIST, allEntries = true)
     })
     @HasEmployeeRole
     @DeleteMapping("/{actorId}")
