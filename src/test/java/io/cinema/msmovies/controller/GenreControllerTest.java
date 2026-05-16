@@ -72,7 +72,7 @@ class GenreControllerTest {
         // arrange
         var genreId = UUID.randomUUID();
         var movieId = UUID.randomUUID();
-        var movie = MovieMockFactory.movieResponseDto(movieId);
+        var movie = MovieMockFactory.buildMovieResponseDto(movieId);
 
         when(genreService.getMovieByGenre(genreId)).thenReturn(Flux.just(movie));
 

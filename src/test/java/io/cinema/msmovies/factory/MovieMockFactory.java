@@ -1,6 +1,7 @@
 package io.cinema.msmovies.factory;
 
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
+import io.cinema.msmovies.domain.entity.MovieEntity;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDate;
@@ -11,7 +12,7 @@ import java.util.UUID;
 @UtilityClass
 public class MovieMockFactory {
 
-    public static MovieResponseDto movieResponseDto(
+    public static MovieResponseDto buildMovieResponseDto(
             UUID movieId
     ) {
         UUID genreId = UUID.randomUUID();
@@ -41,6 +42,19 @@ public class MovieMockFactory {
                 actors,
                 directors,
                 List.of(media)
+        );
+    }
+
+    public static MovieEntity buildMovieEntity(
+            UUID movieId
+    ) {
+        return new MovieEntity(
+                movieId,
+                "Some movie - test",
+                "Very very good movie, some say it's the best movie in the world",
+                LocalDate.of(2025, 10, 15),
+                "https://localhost/bucket/123-poster.png",
+                "https://localhost/bucket/123-backdrop.png"
         );
     }
 }

@@ -5,6 +5,7 @@ import io.cinema.msmovies.domain.dto.response.GenreResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.mapper.GenreMapper;
 import io.cinema.msmovies.repository.GenreRepository;
+import io.cinema.msmovies.repository.MovieRepository;
 import io.cinema.msmovies.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
+    private final MovieRepository movieRepository;
     private final TransactionalOperator transactionalOperator;
     private final GenreMapper genreMapper;
 
