@@ -54,7 +54,7 @@ class GenreControllerTest {
         var genreId = UUID.randomUUID();
         var genreResponse = GenreMockFactory.buildGenreResponseDto(genreId);
 
-        when(genreService.getGenre(genreId)).thenReturn(Mono.just(genreResponse));
+        when(genreService.getGenreById(genreId)).thenReturn(Mono.just(genreResponse));
 
         // act & assert
         webTestClient.get()
@@ -64,7 +64,7 @@ class GenreControllerTest {
                 .expectBody(GenreResponseDto.class)
                 .isEqualTo(genreResponse);
 
-        verify(genreService).getGenre(genreId);
+        verify(genreService).getGenreById(genreId);
     }
 
     @Test
