@@ -12,10 +12,8 @@ public interface ActorRepository extends R2dbcRepository<ActorEntity, UUID> {
     Flux<ActorEntity> findAllBy(Pageable page);
 
     @Query("""
-            SELECT a.* 
-            FROM actor a 
-            JOIN movie_actor ma
-            on a.id = ma.actor_id
+            SELECT a.* FROM actor a 
+            JOIN movie_actor ma ON a.id = ma.actor_id
             WHERE ma.movie_id = :movieId
             """)
     Flux<ActorEntity> findByMovieId(UUID movieId);

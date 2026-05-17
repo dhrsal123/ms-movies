@@ -12,10 +12,8 @@ public interface DirectorRepository extends R2dbcRepository<DirectorEntity, UUID
     Flux<DirectorEntity> findAllBy(Pageable page);
 
     @Query("""
-            SELECT d.* 
-            FROM director d 
-            JOIN director_movie dm 
-            on d.id = dm.director_id
+            SELECT d.* FROM director d 
+            JOIN director_movie dm ON d.id = dm.director_id
             WHERE dm.movie_id = :movieId
             """)
     Flux<DirectorEntity> findByMovieId(UUID movieId);
