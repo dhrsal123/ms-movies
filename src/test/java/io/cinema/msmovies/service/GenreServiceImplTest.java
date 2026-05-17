@@ -3,13 +3,9 @@ package io.cinema.msmovies.service;
 import io.cinema.domain.exceptions.CinemaException;
 import io.cinema.msmovies.domain.entity.GenreEntity;
 import io.cinema.msmovies.factory.GenreMockFactory;
-import io.cinema.msmovies.factory.MovieMockFactory;
 import io.cinema.msmovies.mapper.GenreMapper;
 import io.cinema.msmovies.mapper.GenreMapperImpl;
-import io.cinema.msmovies.mapper.MovieMapper;
-import io.cinema.msmovies.mapper.MovieMapperImpl;
 import io.cinema.msmovies.repository.GenreRepository;
-import io.cinema.msmovies.repository.MovieRepository;
 import io.cinema.msmovies.service.impl.GenreServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,24 +29,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@Import({GenreMapperImpl.class, MovieMapperImpl.class})
+@Import({GenreMapperImpl.class})
 class GenreServiceImplTest {
 
     @Autowired
     private GenreMapper genreMapper;
 
-    @Autowired
-    private MovieMapper movieMapper;
-
     private GenreRepository genreRepository;
-    private MovieRepository movieRepository;
     private TransactionalOperator transactionalOperator;
     private GenreService genreService;
 
     @BeforeEach
     void setUp() {
         this.genreRepository = Mockito.mock(GenreRepository.class);
-        this.movieRepository = Mockito.mock(MovieRepository.class);
         this.transactionalOperator = Mockito.mock(TransactionalOperator.class);
 
         when(transactionalOperator.transactional(any(Flux.class)))
@@ -61,10 +52,8 @@ class GenreServiceImplTest {
 
         this.genreService = new GenreServiceImpl(
                 genreRepository,
-                movieRepository,
                 transactionalOperator,
-                genreMapper,
-                movieMapper
+                genreMapper
         );
     }
 
@@ -106,27 +95,6 @@ class GenreServiceImplTest {
                 .verifyComplete();
 
         verify(genreRepository).findById(genreId);
-    }
-
-    @Test
-    void shouldGetMovieByGenre() {
-        // arrange
-        var movieId = UUID.randomUUID();
-        var movie = MovieMockFactory.buildMovieEntity(movieId);
-        var movieResponse = MovieMockFactory.buildMovieResponseDto(movieId);
-        var genreId = UUID.randomUUID();
-
-        when(movieRepository.findByGenreId(genreId)).thenReturn(Flux.just(movie));
-
-        // act
-        var response = genreService.getMovieByGenre(genreId);
-
-        // assert
-        StepVerifier.create(response)
-                .expectNext(movieResponse)
-                .verifyComplete();
-
-        verify(movieRepository).findByGenreId(genreId);
     }
 
     @Test
@@ -265,8 +233,6 @@ class GenreServiceImplTest {
         verify(transactionalOperator).transactional(any(Mono.class));
     }
 
-    // --- NEW TESTS APPENDED FOR 100% COVERAGE ---
-
     @Test
     void shouldFailToGetAllGenresWhenTheresAnException() {
         // arrange
@@ -325,26 +291,6 @@ class GenreServiceImplTest {
                 .verify();
 
         verify(genreRepository).findById(genreId);
-    }
-
-    @Test
-    void shouldFailToGetMovieByGenreWhenTheresAnException() {
-        // arrange
-        var genreId = UUID.randomUUID();
-        var dbException = new CannotCreateTransactionException("Generic Exception");
-        when(movieRepository.findByGenreId(genreId)).thenReturn(Flux.error(dbException));
-
-        // act
-        var response = genreService.getMovieByGenre(genreId);
-
-        // assert
-        StepVerifier.create(response)
-                .expectErrorMatches(e ->
-                        e instanceof CinemaException && e.getMessage().equals("DB error during read")
-                )
-                .verify();
-
-        verify(movieRepository).findByGenreId(genreId);
     }
 
     @Test

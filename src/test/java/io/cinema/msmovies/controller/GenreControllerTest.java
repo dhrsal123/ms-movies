@@ -6,6 +6,7 @@ import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.factory.GenreMockFactory;
 import io.cinema.msmovies.factory.MovieMockFactory;
 import io.cinema.msmovies.service.GenreService;
+import io.cinema.msmovies.service.MovieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -20,12 +21,14 @@ import static org.mockito.Mockito.when;
 
 class GenreControllerTest {
     private GenreService genreService;
+    private MovieService movieService;
     private WebTestClient webTestClient;
 
     @BeforeEach
     void setUp() {
         this.genreService = mock(GenreService.class);
-        this.webTestClient = WebTestClient.bindToController(new GenreController(genreService)).build();
+        this.movieService = mock(MovieService.class);
+        this.webTestClient = WebTestClient.bindToController(new GenreController(genreService, movieService)).build();
     }
 
     @Test
@@ -74,7 +77,7 @@ class GenreControllerTest {
         var movieId = UUID.randomUUID();
         var movie = MovieMockFactory.buildMovieResponseDto(movieId);
 
-        when(genreService.getMovieByGenre(genreId)).thenReturn(Flux.just(movie));
+        when(movieService.getMoviesByGenreId(genreId)).thenReturn(Flux.just(movie));
 
         // act & assert
         webTestClient.get()
@@ -85,7 +88,7 @@ class GenreControllerTest {
                 .hasSize(1)
                 .contains(movie);
 
-        verify(genreService).getMovieByGenre(genreId);
+        verify(movieService).getMoviesByGenreId(genreId);
 
     }
 
