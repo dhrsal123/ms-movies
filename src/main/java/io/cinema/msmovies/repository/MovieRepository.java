@@ -9,10 +9,8 @@ import java.util.UUID;
 
 public interface MovieRepository extends R2dbcRepository<MovieEntity, UUID> {
     @Query("""
-            SELECT m.* 
-            FROM movie m 
-            JOIN movie_genre mg
-            on m.id = mg.movie_id
+            SELECT m.* FROM movie m 
+            JOIN movie_genre mg ON m.id = mg.movie_id
             WHERE mg.genre_id = :genreId
             """)
     Flux<MovieEntity> findByGenreId(UUID genreId);

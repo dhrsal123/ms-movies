@@ -4,6 +4,7 @@ import io.cinema.msmovies.domain.dto.request.GenreRequestDto;
 import io.cinema.msmovies.domain.dto.response.GenreResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.service.GenreService;
+import io.cinema.msmovies.service.MovieService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +32,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/genres")
 public class GenreController {
-    private final GenreService genreService;
     private static final String CACHE_GENRES_LIST = "genres";
     private static final String CACHE_GENRE_SINGLE = "genre";
     private static final String CACHE_GENRE_MOVIES = "genre_movies";
+    private final GenreService genreService;
+    private final MovieService movieService;
 
     @Cacheable(value = CACHE_GENRES_LIST)
     @GetMapping
@@ -47,14 +49,14 @@ public class GenreController {
     @GetMapping("/{genreId}")
     public Mono<GenreResponseDto> getGenre(@PathVariable("genreId") @NotNull UUID genreId) {
         log.debug("Fetching genre {} from database", genreId);
-        return genreService.getGenre(genreId);
+        return genreService.getGenreById(genreId);
     }
 
     @Cacheable(value = CACHE_GENRE_MOVIES, key = "#genreId")
     @GetMapping("/{genreId}/movies")
     public Flux<MovieResponseDto> getMoviesByGenre(@PathVariable("genreId") @NotNull UUID genreId) {
         log.debug("Fetching movies for genre {} from database", genreId);
-        return genreService.getMovieByGenre(genreId);
+        return movieService.getMoviesByGenreId(genreId);
     }
 
     @CacheEvict(value = CACHE_GENRES_LIST, allEntries = true)
