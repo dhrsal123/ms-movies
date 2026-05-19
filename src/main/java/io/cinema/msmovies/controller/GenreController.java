@@ -1,5 +1,6 @@
 package io.cinema.msmovies.controller;
 
+import io.cinema.domain.annotations.HasEmployeeRole;
 import io.cinema.msmovies.domain.dto.request.GenreRequestDto;
 import io.cinema.msmovies.domain.dto.response.GenreResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
@@ -60,6 +61,7 @@ public class GenreController {
     }
 
     @CacheEvict(value = CACHE_GENRES_LIST, allEntries = true)
+    @HasEmployeeRole
     @PostMapping
     public Mono<GenreResponseDto> createGenre(@RequestBody @Valid GenreRequestDto genreRequestDto) {
         return genreService.createGenre(genreRequestDto);
@@ -70,6 +72,7 @@ public class GenreController {
             @CacheEvict(value = CACHE_GENRES_LIST, allEntries = true),
             @CacheEvict(value = CACHE_GENRE_MOVIES, key = "#genreId")
     })
+    @HasEmployeeRole
     @PutMapping("/{genreId}")
     public Mono<GenreResponseDto> updateGenre(
             @PathVariable("genreId") @NotNull UUID genreId,
@@ -83,6 +86,7 @@ public class GenreController {
             @CacheEvict(value = CACHE_GENRES_LIST, allEntries = true),
             @CacheEvict(value = CACHE_GENRE_MOVIES, key = "#genreId")
     })
+    @HasEmployeeRole
     @DeleteMapping("/{genreId}")
     public Mono<Void> deleteGenre(@PathVariable("genreId") @NotNull UUID genreId) {
         return genreService.deleteGenre(genreId);
