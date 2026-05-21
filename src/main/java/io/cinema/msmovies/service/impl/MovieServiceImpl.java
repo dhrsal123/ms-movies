@@ -41,6 +41,9 @@ import static io.cinema.domain.enumerated.CinemaExceptionTypes.TECHNICAL_ERROR;
 @RequiredArgsConstructor
 public class MovieServiceImpl implements MovieService {
 
+    private static final String MOVIE_NOT_FOUND = "Movie not found: ";
+    private static final String DB_ERROR_DURING_READ = "DB error during read";
+
     private final MovieRepository movieRepository;
     private final GenreRepository genreRepository;
     private final ActorRepository actorRepository;
@@ -58,7 +61,7 @@ public class MovieServiceImpl implements MovieService {
                 .doOnError(e -> log.error("Failed to get movies: {}", e.getMessage()))
                 .onErrorMap(
                         e -> !(e instanceof CinemaException),
-                        e -> new CinemaException("DB error during read", TECHNICAL_ERROR)
+                        e -> new CinemaException(DB_ERROR_DURING_READ, TECHNICAL_ERROR)
                 );
     }
 
@@ -71,14 +74,14 @@ public class MovieServiceImpl implements MovieService {
                 .doOnError(e -> log.error("Failed to get movies by genre {}: {}", genreId, e.getMessage()))
                 .onErrorMap(
                         e -> !(e instanceof CinemaException),
-                        e -> new CinemaException("DB error during read", TECHNICAL_ERROR)
+                        e -> new CinemaException(DB_ERROR_DURING_READ, TECHNICAL_ERROR)
                 );
     }
 
     @Override
     public Mono<MovieResponseDto> getMovieById(UUID movieId) {
         return movieRepository.findById(movieId)
-                .switchIfEmpty(Mono.error(new CinemaException("Movie not found: " + movieId, NOT_FOUND)))
+                .switchIfEmpty(Mono.error(new CinemaException(MOVIE_NOT_FOUND + movieId, NOT_FOUND)))
                 .flatMap(movie -> Mono.zip(
                         genreRepository.findByMovieId(movieId).collect(Collectors.toSet()),
                         actorRepository.findByMovieId(movieId).collect(Collectors.toSet()),
@@ -95,7 +98,7 @@ public class MovieServiceImpl implements MovieService {
                 .doOnError(e -> log.error("Failed to get movie {}: {}", movieId, e.getMessage()))
                 .onErrorMap(
                         e -> !(e instanceof CinemaException),
-                        e -> new CinemaException("DB error during read", TECHNICAL_ERROR)
+                        e -> new CinemaException(DB_ERROR_DURING_READ, TECHNICAL_ERROR)
                 );
     }
 
@@ -117,7 +120,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public Mono<MovieResponseDto> updateMovie(UUID movieId, MovieRequestDto dto) {
         return movieRepository.findById(movieId)
-                .switchIfEmpty(Mono.error(new CinemaException("Movie not found: " + movieId, NOT_FOUND)))
+                .switchIfEmpty(Mono.error(new CinemaException(MOVIE_NOT_FOUND + movieId, NOT_FOUND)))
                 .flatMap(existing -> {
                     movieMapper.updateEntityFromDto(dto, existing);
                     return movieRepository.save(existing);
@@ -136,7 +139,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public Mono<Void> deleteMovie(UUID movieId) {
         return movieRepository.findById(movieId)
-                .switchIfEmpty(Mono.error(new CinemaException("Movie not found: " + movieId, NOT_FOUND)))
+                .switchIfEmpty(Mono.error(new CinemaException(MOVIE_NOT_FOUND + movieId, NOT_FOUND)))
                 .flatMap(movie -> deleteRelationships(movieId)
                         .then(movieRepository.deleteById(movieId)))
                 .as(transactionalOperator::transactional)
