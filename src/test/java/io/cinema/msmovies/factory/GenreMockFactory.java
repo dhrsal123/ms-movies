@@ -3,6 +3,7 @@ package io.cinema.msmovies.factory;
 import io.cinema.msmovies.domain.dto.request.GenreRequestDto;
 import io.cinema.msmovies.domain.dto.response.GenreResponseDto;
 import io.cinema.msmovies.domain.entity.GenreEntity;
+import io.cinema.msmovies.domain.entity.GenreProjection;
 import lombok.experimental.UtilityClass;
 
 import java.util.UUID;
@@ -34,5 +35,10 @@ public class GenreMockFactory {
                 "Horror movies, very scary.",
                 "https://localhost/bucket/scary.png"
         );
+    }
+
+    public static GenreProjection buildGenreProjection(UUID movieId, UUID genreId) {
+        var genreEntity = buildGenreEntity(genreId);
+        return new GenreProjection(movieId, genreEntity);
     }
 }
