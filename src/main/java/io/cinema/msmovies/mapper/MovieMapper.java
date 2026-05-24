@@ -21,10 +21,10 @@ import java.util.Set;
                 ActorMapper.class,
                 DirectorMapper.class,
                 GenreMapper.class,
-                MovieMediaMapper.class})
+                MovieMediaMapper.class
+        }
+)
 public interface MovieMapper {
-
-    MovieResponseDto toDto(MovieEntity movie);
 
     MovieResponseDto toDto(MovieEntity movie,
                            Set<GenreEntity> genres,
