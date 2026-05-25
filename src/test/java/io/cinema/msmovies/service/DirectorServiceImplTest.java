@@ -10,11 +10,9 @@ import io.cinema.msmovies.service.impl.DirectorServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -25,31 +23,30 @@ import java.util.UUID;
 
 import static io.cinema.domain.enumerated.CinemaExceptionTypes.NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@Import({DirectorMapperImpl.class})
+@ExtendWith(MockitoExtension.class)
 class DirectorServiceImplTest {
+    private final DirectorMapper directorMapper = new DirectorMapperImpl();
 
-    @Autowired
-    private DirectorMapper directorMapper;
-
+    @Mock
     private DirectorRepository directorRepository;
+
+    @Mock
     private TransactionalOperator transactionalOperator;
+
     private DirectorService directorService;
 
     @BeforeEach
     void setUp() {
-        this.directorRepository = Mockito.mock(DirectorRepository.class);
-        this.transactionalOperator = Mockito.mock(TransactionalOperator.class);
-        when(transactionalOperator.transactional(any(Flux.class)))
-                .thenAnswer(transactionalOperator -> transactionalOperator.getArgument(0));
+        lenient().when(transactionalOperator.transactional(any(Flux.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
-        when(transactionalOperator.transactional(any(Mono.class)))
-                .thenAnswer(transactionalOperator -> transactionalOperator.getArgument(0));
-
+        lenient().when(transactionalOperator.transactional(any(Mono.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
         this.directorService = new DirectorServiceImpl(directorMapper, transactionalOperator, directorRepository);
     }

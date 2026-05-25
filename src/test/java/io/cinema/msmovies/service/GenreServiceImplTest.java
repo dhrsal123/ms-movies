@@ -10,10 +10,8 @@ import io.cinema.msmovies.service.impl.GenreServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -24,31 +22,30 @@ import java.util.UUID;
 
 import static io.cinema.domain.enumerated.CinemaExceptionTypes.NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@Import({GenreMapperImpl.class})
+@ExtendWith(MockitoExtension.class)
 class GenreServiceImplTest {
+    private final GenreMapper genreMapper = new GenreMapperImpl();
 
-    @Autowired
-    private GenreMapper genreMapper;
-
+    @Mock
     private GenreRepository genreRepository;
+
+    @Mock
     private TransactionalOperator transactionalOperator;
+
     private GenreService genreService;
 
     @BeforeEach
     void setUp() {
-        this.genreRepository = Mockito.mock(GenreRepository.class);
-        this.transactionalOperator = Mockito.mock(TransactionalOperator.class);
+        lenient().when(transactionalOperator.transactional(any(Flux.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
-        when(transactionalOperator.transactional(any(Flux.class)))
-                .thenAnswer(transactionalOperator -> transactionalOperator.getArgument(0));
-
-        when(transactionalOperator.transactional(any(Mono.class)))
-                .thenAnswer(transactionalOperator -> transactionalOperator.getArgument(0));
+        lenient().when(transactionalOperator.transactional(any(Mono.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
         this.genreService = new GenreServiceImpl(
                 genreRepository,

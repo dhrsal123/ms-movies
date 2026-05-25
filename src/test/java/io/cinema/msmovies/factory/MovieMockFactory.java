@@ -1,5 +1,6 @@
 package io.cinema.msmovies.factory;
 
+import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.domain.entity.MovieEntity;
 import lombok.experimental.UtilityClass;
@@ -13,22 +14,21 @@ import java.util.UUID;
 public class MovieMockFactory {
 
     public static MovieResponseDto buildMovieResponseDto(
-            UUID movieId
+            UUID movieId,
+            UUID genreId,
+            UUID actorId,
+            UUID directorId,
+            UUID mediaId
     ) {
-        UUID genreId = UUID.randomUUID();
-
         var genre = GenreMockFactory.buildGenreResponseDto(genreId);
         var genres = Set.of(genre);
 
-        var actorId = UUID.randomUUID();
         var actor = ActorMockFactory.buildActorResponseDto(actorId);
         var actors = Set.of(actor);
 
-        var directorId = UUID.randomUUID();
         var director = DirectorMockFactory.buildDirectorResponseDto(directorId);
         var directors = Set.of(director);
 
-        var mediaId = UUID.randomUUID();
         var media = MovieMediaMockFactory.buildMovieMediaResponseDto(mediaId);
 
         return new MovieResponseDto(
@@ -41,6 +41,28 @@ public class MovieMockFactory {
                 genres,
                 actors,
                 directors,
+                List.of(media)
+        );
+    }
+
+
+    public static MovieRequestDto buildMovieRequestDto(
+            UUID genreId,
+            UUID actorId,
+            UUID directorId,
+            UUID mediaId
+    ) {
+        var media = MovieMediaMockFactory.buildMovieMediaRequestDto(mediaId);
+
+        return new MovieRequestDto(
+                "Some movie - test",
+                "Very very good movie, some say it's the best movie in the world",
+                LocalDate.of(2025, 10, 15),
+                "https://localhost/bucket/123-poster.png",
+                "https://localhost/bucket/123-backdrop.png",
+                Set.of(genreId),
+                Set.of(actorId),
+                Set.of(directorId),
                 List.of(media)
         );
     }
