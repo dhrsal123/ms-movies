@@ -1,5 +1,6 @@
 package io.cinema.msmovies.controller;
 
+import io.cinema.domain.annotations.HasEmployeeRole;
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.service.MovieService;
@@ -52,6 +53,7 @@ public class MovieController {
     }
 
     @CacheEvict(value = CACHE_MOVIE_LIST, allEntries = true)
+    @HasEmployeeRole
     @PostMapping
     public Mono<MovieResponseDto> createMovie(@RequestBody @Valid MovieRequestDto movieRequestDto) {
         return movieService.createMovie(movieRequestDto);
@@ -61,6 +63,7 @@ public class MovieController {
             @CacheEvict(value = CACHE_MOVIE, key = "#movieId"),
             @CacheEvict(value = CACHE_MOVIE_LIST, allEntries = true)
     })
+    @HasEmployeeRole
     @PutMapping("/{movieId}")
     public Mono<MovieResponseDto> updateMovie(
             @PathVariable("movieId") UUID movieId,
@@ -73,6 +76,7 @@ public class MovieController {
             @CacheEvict(value = CACHE_MOVIE, key = "#movieId"),
             @CacheEvict(value = CACHE_MOVIE_LIST, allEntries = true)
     })
+    @HasEmployeeRole
     @DeleteMapping("/{movieId}")
     public Mono<Void> deleteMovie(@PathVariable("movieId") UUID movieId) {
         return movieService.deleteMovie(movieId);
