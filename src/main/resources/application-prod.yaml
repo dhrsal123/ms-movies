@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: ms-movies
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${KEYCLOAK_HOST}:8000/auth/realms/cinema-system
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+  r2dbc:
+    url: r2dbc:postgresql://${POSTGRES_HOST}:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    pool:
+      initial-size: 10
+      max-size: 50
+
+  liquibase:
+    url: jdbc:postgresql://${POSTGRES_HOST}:5432/${POSTGRES_DB}
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    change-log: classpath:/db/changelog/db.changelog-master.sql
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+
+server:
+  port: 8082
+  shutdown: graceful
+
+logging:
+  level:
+    root: info
+    org.springframework.web: warn
+    io.r2dbc.postgresql: warn
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+security:
+  commons:
+    oauth2:
+      jwk-set-uri: http://${KEYCLOAK_HOST}:8000/auth/realms/cinema-system/protocol/openid-connect/certs
+    cors:
+      allowed-origins:
+        - ${FRONTEND_PROD_URL}
+      allowed-headers:
+        - "*"
+      allowed-methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "OPTIONS"
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      base-path: "/actuator"
+      exposure:
+        include: "health,prometheus"
+
+  endpoint:
+    health:
+      show-details: when_authorized
+
+  opentelemetry:
+    logging:
+      export:
+        otlp:
+          endpoint: http://${LOKI_HOST}:4318/v1/logs
+  tracing:
+    sampling:
+      probability: 0.1

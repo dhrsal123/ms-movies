@@ -1,0 +1,984 @@
+openapi: 3.1.0
+info:
+  title: Cinema Movies Management API
+  description: Microservice for managing cinema movies, more specifically movies information, actors, directors, and genres.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@cinema.io
+
+servers:
+  - url: http://localhost:8082
+    description: Local Development Server
+
+
+tags:
+  - name: Movies
+    description: Operations related to the movie catalog.
+  - name: Genres
+    description: Operations related to movie genres.
+  - name: Directors
+    description: Operations related to director management.
+  - name: Actors
+    description: Operations related to actor management.
+
+paths:
+  /api/v1/movies:
+    get:
+      tags:
+        - Movies
+      summary: Get all movies
+      description: Retrieves a paginated list of all movies in the system.
+      operationId: getAllMovies
+      parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: size
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            exclusiveMinimum: 0
+      responses:
+        "200":
+          description: Successfully retrieved the list of movies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MovieResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - Movies
+      summary: Create a new movie
+      description: Creates a new movie entity. Requires Employee role.
+      operationId: createMovie
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieRequestDto"
+      responses:
+        "201":
+          description: Movie created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/movies/{movieId}:
+    get:
+      tags:
+        - Movies
+      summary: Get movie details
+      description: Retrieves the details of a specific movie by its UUID.
+      operationId: getMovieById
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved movie details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - Movies
+      summary: Update a movie
+      description: Updates the details of an existing movie. Requires Employee role.
+      operationId: updateMovie
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieRequestDto"
+      responses:
+        "200":
+          description: Movie updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Movies
+      summary: Delete a movie
+      description: Deletes a movie from the system by its UUID. Requires Employee role.
+      operationId: deleteMovie
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Movie deleted successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/genres:
+    get:
+      tags:
+        - Genres
+      summary: Get all genres
+      description: Retrieves a list of all movie genres.
+      operationId: getAllGenres
+      responses:
+        "200":
+          description: Successfully retrieved genres.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GenreResponseDto"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - Genres
+      summary: Create a new genre
+      description: Creates a new genre entity. Requires Employee role.
+      operationId: createGenre
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenreRequestDto"
+      responses:
+        "201":
+          description: Genre created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenreResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/genres/{genreId}:
+    get:
+      tags:
+        - Genres
+      summary: Get genre details
+      description: Retrieves the details of a specific genre.
+      operationId: getGenre
+      parameters:
+        - name: genreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved genre.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenreResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - Genres
+      summary: Update a genre
+      description: Updates the details of an existing genre. Requires Employee role.
+      operationId: updateGenre
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: genreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenreRequestDto"
+      responses:
+        "200":
+          description: Genre updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenreResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Genres
+      summary: Delete a genre
+      description: Deletes a genre from the system. Requires Employee role.
+      operationId: deleteGenre
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: genreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Genre deleted successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/genres/{genreId}/movies:
+    get:
+      tags:
+        - Genres
+      summary: Get movies by genre
+      description: Retrieves a list of movies associated with a specific genre.
+      operationId: getMoviesByGenre
+      parameters:
+        - name: genreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved movies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MovieResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/directors:
+    get:
+      tags:
+        - Directors
+      summary: Get all directors
+      description: Retrieves a paginated list of all directors.
+      operationId: getAllDirectors
+      parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: size
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            exclusiveMinimum: 0
+      responses:
+        "200":
+          description: Successfully retrieved directors.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DirectorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - Directors
+      summary: Create a new director
+      description: Creates a new director entity. Requires Employee role.
+      operationId: createDirector
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DirectorRequestDto"
+      responses:
+        "201":
+          description: Director created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/directors/{directorId}:
+    get:
+      tags:
+        - Directors
+      summary: Get director details
+      description: Retrieves the details of a specific director by their UUID.
+      operationId: getDirectorById
+      parameters:
+        - name: directorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved director.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - Directors
+      summary: Update a director
+      description: Updates the details of an existing director. Requires Employee role.
+      operationId: updateDirector
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: directorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DirectorRequestDto"
+      responses:
+        "200":
+          description: Director updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Directors
+      summary: Delete a director
+      description: Deletes a director from the system. Requires Employee role.
+      operationId: deleteDirector
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: directorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Director deleted successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/actors:
+    get:
+      tags:
+        - Actors
+      summary: Get all actors
+      description: Retrieves a paginated list of all actors.
+      operationId: getAllActors
+      parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: size
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            exclusiveMinimum: 0
+      responses:
+        "200":
+          description: Successfully retrieved actors.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - Actors
+      summary: Create a new actor
+      description: Creates a new actor entity. Requires Employee role.
+      operationId: createActor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActorRequestDto"
+      responses:
+        "201":
+          description: Actor created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/actors/{actorId}:
+    get:
+      tags:
+        - Actors
+      summary: Get actor details
+      description: Retrieves the details of a specific actor by their UUID.
+      operationId: getActorById
+      parameters:
+        - name: actorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved actor.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - Actors
+      summary: Update an actor
+      description: Updates the details of an existing actor. Requires Employee role.
+      operationId: updateActor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: actorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActorRequestDto"
+      responses:
+        "200":
+          description: Actor updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActorResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Actors
+      summary: Delete an actor
+      description: Deletes an actor from the system. Requires Employee role.
+      operationId: deleteActor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: actorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Actor deleted successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Provide the JWT token issued by Keycloak to access Employee endpoints.
+
+  responses:
+    BadRequest:
+      description: Bad Request. Occurs when validation fails or business rules are violated.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseErrorDto"
+          example:
+            message: "Invalid Request. Field validations failed."
+            code: "CINEMA-001"
+            status: "BAD_REQUEST"
+
+    Unauthorized:
+      description: Unauthorized. Authentication is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseErrorDto"
+          example:
+            message: "Unauthorized."
+            code: "CINEMA-005"
+            status: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Forbidden. Authenticated user lacks required authorities (e.g., HasEmployeeRole missing).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseErrorDto"
+          example:
+            message: "Forbidden. Access Denied."
+            code: "CINEMA-004"
+            status: "FORBIDDEN"
+
+    NotFound:
+      description: Not Found. The requested entity does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseErrorDto"
+          example:
+            message: "The requested entity could not be found."
+            code: "CINEMA-001"
+            status: "NOT_FOUND"
+
+    InternalServerError:
+      description: Internal Server Error. Raised directly by generic Exceptions or Database transaction failures.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseErrorDto"
+          examples:
+            TechnicalError:
+              summary: Custom DB/Technical Exception
+              value:
+                message: "DB error during operation"
+                code: "CINEMA-002"
+                status: "INTERNAL_SERVER_ERROR"
+
+  schemas:
+    BaseErrorDto:
+      description: Standardized error payload handled by ExceptionHandlers and generated from CinemaExceptionTypes.
+      type: object
+      properties:
+        message:
+          type: string
+          description: A specific message describing the nature of the error.
+        code:
+          type: string
+          description: A predefined internal code string representing the type of error.
+        status:
+          type: string
+          description: String representation of the Spring HttpStatus enum.
+      required:
+        - message
+        - code
+        - status
+
+    MovieMediaRequestDto:
+      type: object
+      properties:
+        mediaType:
+          type: string
+          enum:
+            - TRAILER
+            - TEASER
+            - GALLERY_IMAGE
+        movieId:
+          type: string
+          format: uuid
+        mediaUrl:
+          type: string
+          maxLength: 1024
+          minLength: 0
+        title:
+          type: string
+          maxLength: 255
+          minLength: 0
+        displayOrder:
+          type: integer
+          format: int32
+      required:
+        - mediaType
+        - mediaUrl
+        - movieId
+    MovieRequestDto:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          minLength: 0
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        releaseDate:
+          type: string
+          format: date
+        posterUrl:
+          type: string
+          maxLength: 1024
+          minLength: 0
+        backdropUrl:
+          type: string
+          maxLength: 1024
+          minLength: 0
+        genreIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          uniqueItems: true
+        actorIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          uniqueItems: true
+        directorIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          uniqueItems: true
+        media:
+          type: array
+          items:
+            $ref: "#/components/schemas/MovieMediaRequestDto"
+      required:
+        - actorIds
+        - description
+        - directorIds
+        - genreIds
+        - releaseDate
+        - title
+    ActorResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+    DirectorResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+    GenreResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+    MovieMediaResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mediaType:
+          type: string
+          enum:
+            - TRAILER
+            - TEASER
+            - GALLERY_IMAGE
+        mediaUrl:
+          type: string
+        title:
+          type: string
+        displayOrder:
+          type: integer
+          format: int32
+    MovieResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        releaseDate:
+          type: string
+          format: date
+        posterUrl:
+          type: string
+        backdropUrl:
+          type: string
+        genres:
+          type: array
+          items:
+            $ref: "#/components/schemas/GenreResponseDto"
+          uniqueItems: true
+        actors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActorResponseDto"
+          uniqueItems: true
+        directors:
+          type: array
+          items:
+            $ref: "#/components/schemas/DirectorResponseDto"
+          uniqueItems: true
+        media:
+          type: array
+          items:
+            $ref: "#/components/schemas/MovieMediaResponseDto"
+    GenreRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        imageUrl:
+          type: string
+          maxLength: 1024
+          minLength: 0
+      required:
+        - description
+        - name
+    DirectorRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+          maxLength: 1024
+          minLength: 0
+      required:
+        - birthDate
+        - name
+    ActorRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+          maxLength: 1024
+          minLength: 0
+      required:
+        - birthDate
+        - name
