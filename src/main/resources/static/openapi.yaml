@@ -23,6 +23,31 @@ tags:
     description: Operations related to actor management.
 
 paths:
+  /api/v1/movies/batch:
+    post:
+      tags:
+        - Movies
+      summary: Get movies info by IDs in batch
+      description: Retrieves a stripped-down list of movie information for a given set of movie IDs. Optimized for inter-service communication.
+      operationId: getMoviesByIds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoviesBatchRequestDto"
+      responses:
+        "200":
+          description: Successfully retrieved the list of movies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MovieInfoResponseDto"
+        "400":
+          description: Bad request (e.g., empty list of IDs).
+
   /api/v1/movies:
     get:
       tags:
@@ -65,7 +90,7 @@ paths:
       description: Creates a new movie entity. Requires Employee role.
       operationId: createMovie
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -122,7 +147,7 @@ paths:
       description: Updates the details of an existing movie. Requires Employee role.
       operationId: updateMovie
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: movieId
           in: path
@@ -160,7 +185,7 @@ paths:
       description: Deletes a movie from the system by its UUID. Requires Employee role.
       operationId: deleteMovie
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: movieId
           in: path
@@ -207,7 +232,7 @@ paths:
       description: Creates a new genre entity. Requires Employee role.
       operationId: createGenre
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -264,7 +289,7 @@ paths:
       description: Updates the details of an existing genre. Requires Employee role.
       operationId: updateGenre
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: genreId
           in: path
@@ -302,7 +327,7 @@ paths:
       description: Deletes a genre from the system. Requires Employee role.
       operationId: deleteGenre
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: genreId
           in: path
@@ -394,7 +419,7 @@ paths:
       description: Creates a new director entity. Requires Employee role.
       operationId: createDirector
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -451,7 +476,7 @@ paths:
       description: Updates the details of an existing director. Requires Employee role.
       operationId: updateDirector
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: directorId
           in: path
@@ -489,7 +514,7 @@ paths:
       description: Deletes a director from the system. Requires Employee role.
       operationId: deleteDirector
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: directorId
           in: path
@@ -553,7 +578,7 @@ paths:
       description: Creates a new actor entity. Requires Employee role.
       operationId: createActor
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -610,7 +635,7 @@ paths:
       description: Updates the details of an existing actor. Requires Employee role.
       operationId: updateActor
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: actorId
           in: path
@@ -648,7 +673,7 @@ paths:
       description: Deletes an actor from the system. Requires Employee role.
       operationId: deleteActor
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: actorId
           in: path
@@ -930,6 +955,38 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MovieMediaResponseDto"
+
+    MoviesBatchRequestDto:
+      type: object
+      properties:
+        moviesIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          uniqueItems: true
+      required:
+        - moviesIds
+
+    MovieInfoResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        releaseDate:
+          type: string
+          format: date
+        posterUrl:
+          type: string
+        backdropUrl:
+          type: string
+
     GenreRequestDto:
       type: object
       properties:
