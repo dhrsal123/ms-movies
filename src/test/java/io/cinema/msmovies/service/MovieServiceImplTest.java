@@ -610,4 +610,45 @@ class MovieServiceImplTest {
                 .expectError(CinemaException.class)
                 .verify();
     }
+
+    @Test
+    void shouldGetMoviesInfoByIdsBatch() {
+        // arrange
+        var movieId = UUID.randomUUID();
+        var request = MovieMockFactory.buildMoviesBatchRequestDto(Set.of(movieId));
+        var entity = MovieMockFactory.buildMovieEntity(movieId);
+        var responseDto = MovieMockFactory.buildMovieInfoResponseDto(movieId);
+
+        when(movieRepository.findAllById(request.moviesIds())).thenReturn(Flux.just(entity));
+
+        // act
+        var response = movieService.getMoviesInfoByIds(request);
+
+        // assert
+        StepVerifier.create(response)
+                .expectNext(responseDto)
+                .verifyComplete();
+
+        verify(movieRepository).findAllById(request.moviesIds());
+    }
+
+    @Test
+    void shouldReturnErrorWhenGetMoviesInfoByIdsFails() {
+        // arrange
+        var movieId = UUID.randomUUID();
+        var request = MovieMockFactory.buildMoviesBatchRequestDto(Set.of(movieId));
+
+        when(movieRepository.findAllById(request.moviesIds()))
+                .thenReturn(Flux.error(new RuntimeException("DB Error")));
+
+        // act
+        var response = movieService.getMoviesInfoByIds(request);
+
+        // assert
+        StepVerifier.create(response)
+                .expectError(CinemaException.class)
+                .verify();
+
+        verify(movieRepository).findAllById(request.moviesIds());
+    }
 }
