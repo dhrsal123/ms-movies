@@ -2,6 +2,8 @@ package io.cinema.msmovies.controller;
 
 import io.cinema.domain.annotations.HasEmployeeRole;
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
+import io.cinema.msmovies.domain.dto.request.MoviesBatchRequestDto;
+import io.cinema.msmovies.domain.dto.response.MovieInfoResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.service.MovieService;
 import jakarta.validation.Valid;
@@ -50,6 +52,11 @@ public class MovieController {
     @GetMapping("/{movieId}")
     public Mono<MovieResponseDto> getMovieById(@PathVariable("movieId") UUID movieId) {
         return movieService.getMovieById(movieId);
+    }
+
+    @PostMapping("/batch")
+    public Flux<MovieInfoResponseDto> getMoviesByIds(@RequestBody @Valid MoviesBatchRequestDto moviesBatchRequestDto) {
+        return movieService.getMoviesInfoByIds(moviesBatchRequestDto);
     }
 
     @CacheEvict(value = CACHE_MOVIE_LIST, allEntries = true)

@@ -1,6 +1,8 @@
 package io.cinema.msmovies.service;
 
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
+import io.cinema.msmovies.domain.dto.request.MoviesBatchRequestDto;
+import io.cinema.msmovies.domain.dto.response.MovieInfoResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,6 +15,8 @@ public interface MovieService {
     Flux<MovieResponseDto> getMoviesByGenreId(UUID genreId);
 
     Mono<MovieResponseDto> getMovieById(UUID movieId);
+
+    Flux<MovieInfoResponseDto> getMoviesInfoByIds(MoviesBatchRequestDto moviesBatchRequestDto);
 
     Mono<MovieResponseDto> createMovie(MovieRequestDto movieRequestDto);
 
