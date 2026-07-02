@@ -2,6 +2,8 @@ package io.cinema.msmovies.service.impl;
 
 import io.cinema.domain.exceptions.CinemaException;
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
+import io.cinema.msmovies.domain.dto.request.MoviesBatchRequestDto;
+import io.cinema.msmovies.domain.dto.response.MovieInfoResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.domain.entity.ActorProjection;
 import io.cinema.msmovies.domain.entity.DirectorProjection;
@@ -96,6 +98,23 @@ public class MovieServiceImpl implements MovieService {
                 )))
                 .as(transactionalOperator::transactional)
                 .doOnError(e -> log.error("Failed to get movie {}: {}", movieId, e.getMessage()))
+                .onErrorMap(
+                        e -> !(e instanceof CinemaException),
+                        e -> new CinemaException(DB_ERROR_DURING_READ, TECHNICAL_ERROR)
+                );
+    }
+
+    @Override
+    public Flux<MovieInfoResponseDto> getMoviesInfoByIds(MoviesBatchRequestDto moviesBatchRequestDto) {
+        return movieRepository.findAllById(moviesBatchRequestDto.moviesIds())
+                .map(movieMapper::toDto)
+                .doOnError(e ->
+                        log.error(
+                                "Failed to get movies {}: {}",
+                                moviesBatchRequestDto.moviesIds(),
+                                e.getMessage()
+                        )
+                )
                 .onErrorMap(
                         e -> !(e instanceof CinemaException),
                         e -> new CinemaException(DB_ERROR_DURING_READ, TECHNICAL_ERROR)

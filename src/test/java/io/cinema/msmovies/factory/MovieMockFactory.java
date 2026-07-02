@@ -1,6 +1,8 @@
 package io.cinema.msmovies.factory;
 
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
+import io.cinema.msmovies.domain.dto.request.MoviesBatchRequestDto;
+import io.cinema.msmovies.domain.dto.response.MovieInfoResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.domain.entity.MovieEntity;
 import lombok.experimental.UtilityClass;
@@ -65,6 +67,21 @@ public class MovieMockFactory {
                 Set.of(directorId),
                 List.of(media)
         );
+    }
+
+    public static MovieInfoResponseDto buildMovieInfoResponseDto(UUID movieId) {
+        return new MovieInfoResponseDto(
+                movieId,
+                "Some movie - test",
+                "Very very good movie, some say it's the best movie in the world",
+                LocalDate.of(2025, 10, 15),
+                "https://localhost/bucket/123-poster.png",
+                "https://localhost/bucket/123-backdrop.png"
+        );
+    }
+
+    public static MoviesBatchRequestDto buildMoviesBatchRequestDto(Set<UUID> moviesIds) {
+        return new MoviesBatchRequestDto(moviesIds);
     }
 
     public static MovieEntity buildMovieEntity(

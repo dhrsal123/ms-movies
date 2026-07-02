@@ -1,6 +1,8 @@
 package io.cinema.msmovies.controller;
 
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
+import io.cinema.msmovies.domain.dto.request.MoviesBatchRequestDto;
+import io.cinema.msmovies.domain.dto.response.MovieInfoResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.factory.MovieMockFactory;
 import io.cinema.msmovies.service.MovieService;
@@ -11,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -171,6 +174,27 @@ class MovieControllerTest {
                 .expectBody(Void.class);
 
         verify(movieService).deleteMovie(movieId);
+    }
+
+    @Test
+    void shouldGetMoviesByIdsBatch() {
+        // arrange
+        var movieId = UUID.randomUUID();
+        var request = MovieMockFactory.buildMoviesBatchRequestDto(Set.of(movieId));
+        var responseDto = MovieMockFactory.buildMovieInfoResponseDto(movieId);
+
+        when(movieService.getMoviesInfoByIds(request)).thenReturn(Flux.just(responseDto));
+
+        // act & assert
+        webTestClient.post()
+                .uri("/api/v1/movies/batch")
+                .body(Mono.just(request), MoviesBatchRequestDto.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(MovieInfoResponseDto.class)
+                .contains(responseDto);
+
+        verify(movieService).getMoviesInfoByIds(request);
     }
 
 }

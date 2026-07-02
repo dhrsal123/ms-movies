@@ -1,6 +1,7 @@
 package io.cinema.msmovies.mapper;
 
 import io.cinema.msmovies.domain.dto.request.MovieRequestDto;
+import io.cinema.msmovies.domain.dto.response.MovieInfoResponseDto;
 import io.cinema.msmovies.domain.dto.response.MovieResponseDto;
 import io.cinema.msmovies.domain.entity.ActorEntity;
 import io.cinema.msmovies.domain.entity.DirectorEntity;
@@ -32,6 +33,8 @@ public interface MovieMapper {
                            Set<DirectorEntity> directors,
                            List<MovieMediaEntity> media
     );
+
+    MovieInfoResponseDto toDto(MovieEntity movie);
 
     @Mapping(target = "id", ignore = true)
     MovieEntity toEntity(MovieRequestDto movie);
